@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	mode      = flag.String("mode", "client", "Server or client")
+	mode      = flag.String("mode", "client", "Server(signaling server) or client(sender or reciever)")
 	stun      = flag.String("stun", "stun.l.google.com:19302", "STUN server addresses(split with ',')")
 	signaling = flag.String("sig", "wss://ftrans.cs3238.com/ws", "Signaling server address")
 )
@@ -56,7 +56,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, "Usage of ftrans:")
 		fmt.Fprintln(os.Stderr, "  ftrans [options] password [file paths...]")
-		fmt.Fprintln(os.Stderr, "  If no path is passed, this runs as a server.")
+		fmt.Fprintln(os.Stderr, "  If no path is passed, this runs as a reciever.")
 		fmt.Fprintln(os.Stderr)
 
 		flag.PrintDefaults()
@@ -128,7 +128,7 @@ func main() {
 		}
 
 		if resp != "CONNECTED" {
-			panic("Unknown message: " + resp)
+			panic("error: " + resp)
 		}
 		log.Println("Connecting started.")
 
@@ -198,9 +198,9 @@ func main() {
 		log.Println("local description: ", desc)
 		log.Println("remote description: ", msg.LocalDescription)
 		if isServer {
-			log.Println("mode: server")
+			log.Println("mode: sender")
 		} else {
-			log.Println("mode: client")
+			log.Println("mode: reciever")
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
