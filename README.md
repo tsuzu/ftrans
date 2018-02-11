@@ -14,10 +14,13 @@
 
 # Usage
 - On one computer
+
 ```
 $ ftrans password path/to/file/you/want/to/send
 ```
+
 - On the other computer
+
 ```
 $ ftrans password
 ```
