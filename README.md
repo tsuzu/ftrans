@@ -10,7 +10,7 @@
 
 # Installation
 - go get git.moxapp.net/tsuzu/ftrans
-- Or, download from [tags](https://git.moxapp.net/tsuzu/ftrans/tags/1.0)
+- Or, download from [tags](https://git.mox.si/tsuzu/ftrans/tags/)
 
 # Usage
 - On one computer
