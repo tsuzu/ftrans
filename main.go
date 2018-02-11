@@ -13,8 +13,6 @@ var (
 )
 
 func main() {
-	flag.Parse()
-
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, "Usage of ftrans:")
 		fmt.Fprintln(os.Stderr, "  ftrans [options] password [file paths...]")
@@ -25,6 +23,8 @@ func main() {
 
 		flag.PrintDefaults()
 	}
+
+	flag.Parse()
 
 	if *mode == "server" {
 		runServer()
