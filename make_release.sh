@@ -13,7 +13,7 @@ FTRANS_WIN=$(openssl md5 ftrans.exe)
 cat << EOF
 # Version $1
 
-The all following binaries are ones for x86_64.
+All the following binaries are ones for x86_64.
 
 # Linux
 [Download binary]()
