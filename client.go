@@ -146,9 +146,9 @@ func runClient() {
 	log.Println("local description: ", desc)
 	log.Println("remote description: ", msg.LocalDescription)
 	if isServer {
-		log.Println("mode: sender")
-	} else {
 		log.Println("mode: reciever")
+	} else {
+		log.Println("mode: sender")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
