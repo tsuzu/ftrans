@@ -33,5 +33,4 @@ $ ftrans password
 - Copyright (c) 2018 Tsuzu
 
 # Version
-- 1.1(latest) # Following updates of go-easyp2p
 - 1.0
