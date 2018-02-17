@@ -3,10 +3,15 @@ package main
 import "github.com/gorilla/websocket"
 
 const (
-	Version1_0 = "1.0"
-	Version1_1 = "1.1" // Update following go-easyp2p
+	ProtocolVersion1_0 = "1.0"
+	ProtocolVersion1_1 = "1.1" // Update following go-easyp2p
 
-	VersionLatest = Version1_1
+	ProtocolVersionLatest = ProtocolVersion1_1
+)
+
+var (
+	binaryVersion  = "unknown"
+	binaryRevision = "unknown"
 )
 
 var upgrader = websocket.Upgrader{

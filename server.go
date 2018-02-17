@@ -80,6 +80,10 @@ func initServer() http.Handler {
 
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Add("Location", "https://git.mox.si/tsuzu/ftrans")
+		rw.WriteHeader(http.StatusFound)
+	})
 	router.HandleFunc("/ws", func(rw http.ResponseWriter, req *http.Request) {
 		log.Println("connected", req.RemoteAddr)
 		defer log.Println("closed", req.RemoteAddr)
@@ -100,7 +104,7 @@ func initServer() http.Handler {
 		}
 		conn.SetReadDeadline(time.Time{})
 
-		if hs.Version != VersionLatest {
+		if hs.Version != ProtocolVersionLatest {
 			conn.SetWriteDeadline(time.Now().Add(3 * time.Second))
 			conn.WriteJSON("Incorrect Version")
 			conn.Close()

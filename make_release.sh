@@ -2,9 +2,18 @@
 
 set -eu
 
-GOOS=linux go build -o ftrans *.go
-GOOS=darwin go build -o ftrans_mac *.go
-GOOS=windows go build -o ftrans.exe *.go
+export GOARCH=amd64
+echo "Build for Mac..."
+make GOOS=darwin BINARY_NAME=ftrans_mac
+echo
+
+echo "Build for Linux..."
+make GOOS=linux BINARY_NAME=ftrans
+echo
+
+echo "Build for Windows..."
+make GOOS=windows BINARY_NAME=ftrans.exe
+echo
 
 FTRANS=$(openssl md5 ftrans)
 FTRANS_MAC=$(openssl md5 ftrans_mac)

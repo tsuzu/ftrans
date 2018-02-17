@@ -30,9 +30,10 @@ func main() {
 	flag.Parse()
 
 	if *version {
-		fmt.Fprintln(os.Stderr, "ftrans version:", VersionLatest)
+		fmt.Fprintln(os.Stderr, "ftrans version:", binaryVersion, "("+binaryRevision+")")
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintln(os.Stderr, "[Details]")
+		fmt.Fprintln(os.Stderr, "ftrans protocol version:", ProtocolVersionLatest)
 		fmt.Fprintln(os.Stderr, "go-easyp2p version:", easyp2p.P2PVersionLatest)
 
 		return

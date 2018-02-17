@@ -61,7 +61,7 @@ func runClient() {
 		panic(err)
 	}
 
-	if err := conn.WriteJSON(Handshake{ID: id, Version: VersionLatest}); err != nil {
+	if err := conn.WriteJSON(Handshake{ID: id, Version: ProtocolVersionLatest}); err != nil {
 		panic(err)
 	}
 
@@ -108,7 +108,7 @@ func runClient() {
 		}
 	}
 
-	uuid, err := uuid.NewV4()
+	uuid := uuid.NewV4()
 	if err != nil {
 		panic(err)
 	}
