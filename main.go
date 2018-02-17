@@ -34,7 +34,7 @@ func main() {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintln(os.Stderr, "[Details]")
 		fmt.Fprintln(os.Stderr, "ftrans protocol version:", ProtocolVersionLatest)
-		fmt.Fprintln(os.Stderr, "go-easyp2p version:", easyp2p.P2PVersionLatest)
+		fmt.Fprintln(os.Stderr, "go-easyp2p version:", easyp2p.P2PVersionString(easyp2p.P2PVersionLatest))
 
 		return
 	}
