@@ -5,7 +5,7 @@
   branch = "master"
   name = "git.mox.si/tsuzu/go-easyp2p"
   packages = ["."]
-  revision = "6fe2756677cb12e61a571b6495646e244687201e"
+  revision = "0bc396bc8522f524003b19aa64374834e1735b72"
 
 [[projects]]
   branch = "master"
