@@ -103,19 +103,20 @@ func runClient() error {
 			return err
 		}
 
-		log.Println("IP addresses discovery failed: ", err)
-		log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
-		fmt.Print("Continue?(y/n): ")
+		for {
+			log.Println("IP addresses discovery failed: ", err)
+			log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
+			fmt.Print("Continue?(y/n): ")
 
-		var c string
-		fmt.Scan(&c)
+			var c string
+			fmt.Scan(&c)
 
-		switch strings.ToLower(c) {
-		case "yes":
-		case "y":
-
-		default:
-			return nil
+			switch strings.ToLower(c) {
+			case "yes", "y":
+				break
+			case "no", "n":
+				return nil
+			}
 		}
 	}
 
@@ -172,7 +173,8 @@ func runClient() error {
 	log.Println("Connected: ", p2p.UTPConn.RemoteAddr())
 
 	type AuthMessage struct {
-		Filenames []string
+		FileNames []string
+		FileSizes []int64
 		AuthCode  string
 	}
 
@@ -183,45 +185,105 @@ func runClient() error {
 			return err
 		}
 
-		stream, err := server.AcceptStream()
-
-		if err != nil {
-			return err
-		}
-
 		var message AuthMessage
 
-		if err := json.NewDecoder(stream).Decode(&message); err != nil {
-			return err
-		}
-
-		if err := json.NewEncoder(stream).Encode(msg.AuthCode); err != nil {
-			return err
-		}
-
-		if message.AuthCode != uuid.String() {
-			return errors.New("Unauthorized")
-		}
-
-		stream.Close()
-
-		for _, name := range message.Filenames {
+		err = func() error {
 			stream, err := server.AcceptStream()
 
 			if err != nil {
 				return err
 			}
-			var fp *os.File
-			if fp, err = os.Create(name); err != nil {
+
+			defer stream.Close()
+
+			if err := json.NewDecoder(stream).Decode(&message); err != nil {
 				return err
 			}
 
-			if _, err := io.Copy(fp, stream); err != nil {
-				log.Printf("%s: %s", name, err.Error())
+			if err := json.NewEncoder(stream).Encode(msg.AuthCode); err != nil {
+				return err
 			}
 
-			fp.Close()
-			stream.Close()
+			if message.AuthCode != uuid.String() {
+				return errors.New("Unauthorized")
+			}
+
+			return nil
+		}()
+
+		if err != nil {
+			return err
+		}
+
+		for _, name := range message.FileNames {
+			if filepath.Dir(filepath.Clean(name)) != "." {
+				return errors.New("Invalid path(avoiding security risk): " + name)
+			}
+		}
+
+		for idx, name := range message.FileNames {
+			err = func() error {
+				stream, err := server.AcceptStream()
+
+				if err != nil {
+					return err
+				}
+
+				defer stream.Close()
+
+				if fp, err := os.Open(name); err == nil {
+					fp.Close()
+
+					for {
+						log.Println("File already exists: ", name)
+						fmt.Print("Skip this?(y/n): ")
+
+						var c string
+						fmt.Scan(&c)
+
+						switch strings.ToLower(c) {
+						case "yes", "y":
+							return nil
+						case "no", "n":
+							break
+						}
+					}
+				}
+
+				var fp *os.File
+				if fp, err = os.Create(name); err != nil {
+					return err
+				}
+				defer fp.Close()
+
+				var p *pb.ProgressBar
+				var writer io.Writer
+				if len(message.FileSizes) > idx {
+					p = pb.New64(message.FileSizes[idx]).SetUnits(pb.U_BYTES)
+
+					p.BarStart = name
+					p.Start()
+					writer = io.MultiWriter(fp, p)
+				} else {
+					writer = fp
+					log.Println(name)
+				}
+				_, err = io.Copy(writer, stream)
+
+				if p != nil {
+					p.Finish()
+				}
+
+				if err != nil {
+					log.Printf("error: %s(%s)", name, err.Error())
+				}
+
+				return nil
+			}()
+
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		client, err := smux.Client(p2p, nil)
@@ -230,63 +292,97 @@ func runClient() error {
 			return err
 		}
 
-		stream, err := client.OpenStream()
-
-		if err != nil {
-			return err
-		}
-
-		filenames := make([]string, len(paths))
+		fileNames := make([]string, len(paths))
+		fileSizes := make([]int64, len(paths))
 		for i := range paths {
-			filenames[i] = filepath.Base(paths[i])
+			paths[i] = filepath.Clean(paths[i])
+
+			var fp *os.File
+			if fp, err = os.Open(paths[i]); err != nil {
+				return errors.New(paths[i] + ": " + err.Error())
+			}
+
+			stat, err := fp.Stat()
+			fp.Close()
+			if err != nil {
+				return err
+			}
+			fileSizes[i] = stat.Size()
+			fileNames[i] = filepath.Base(paths[i])
 		}
 
-		if err := json.NewEncoder(stream).Encode(AuthMessage{
-			Filenames: filenames,
-			AuthCode:  msg.AuthCode,
-		}); err != nil {
-			return err
-		}
-
-		var auth string
-		if err := json.NewDecoder(stream).Decode(&auth); err != nil {
-			return err
-		}
-
-		if auth != uuid.String() {
-			return errors.New("Unauthorized")
-		}
-
-		stream.Close()
-
-		for idx, path := range paths {
+		err = func() error {
 			stream, err := client.OpenStream()
 
 			if err != nil {
 				return err
 			}
-			var fp *os.File
-			if fp, err = os.Open(path); err != nil {
+			defer stream.Close()
+
+			if err := json.NewEncoder(stream).Encode(AuthMessage{
+				FileNames: fileNames,
+				FileSizes: fileSizes,
+				AuthCode:  msg.AuthCode,
+			}); err != nil {
 				return err
 			}
-			stat, err := fp.Stat()
+
+			var auth string
+			if err := json.NewDecoder(stream).Decode(&auth); err != nil {
+				return err
+			}
+
+			if auth != uuid.String() {
+				return errors.New("Unauthorized")
+			}
+
+			return nil
+		}()
+
+		if err != nil {
+			return err
+		}
+
+		for idx, path := range paths {
+			err = func() error {
+				stream, err := client.OpenStream()
+
+				if err != nil {
+					return err
+				}
+
+				defer stream.Close()
+
+				var fp *os.File
+				if fp, err = os.Open(path); err != nil {
+					return err
+				}
+
+				defer fp.Close()
+
+				stat, err := fp.Stat()
+				if err != nil {
+					return err
+				}
+
+				p := pb.New64(stat.Size()).SetUnits(pb.U_BYTES)
+
+				p.BarStart = fileNames[idx]
+				p.Start()
+
+				_, err = io.Copy(io.MultiWriter(stream, p), fp)
+
+				p.Finish()
+				if err != nil {
+					log.Printf("error: %s(%s)", path, err.Error())
+				}
+
+				return nil
+			}()
+
 			if err != nil {
 				return err
 			}
-
-			p := pb.New64(stat.Size()).SetUnits(pb.U_BYTES)
-
-			p.BarStart = filenames[idx]
-			p.Start()
-
-			if _, err := io.Copy(io.MultiWriter(stream, p), fp); err != nil {
-				log.Printf("%s: %s", path, err.Error())
-			}
-
-			p.Finish()
-
-			fp.Close()
-			stream.Close()
 		}
 	}
 

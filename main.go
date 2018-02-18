@@ -13,7 +13,8 @@ var (
 	mode      = flag.String("mode", "client", "Server(signaling server) or client(sender or receiver)")
 	stun      = flag.String("stun", "stun.l.google.com:19302", "STUN server addresses(split with ',')")
 	signaling = flag.String("sig", "wss://ftrans.cs3238.com/ws", "Signaling server address")
-	version   = flag.Bool("v", false, "Show version")
+	// saveDir   = flag.String("save", ".", "Directory in which files are saved(for receivers)") TODO: Support in the future
+	version = flag.Bool("v", false, "Show version")
 )
 
 func main() {
