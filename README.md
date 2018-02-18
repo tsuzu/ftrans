@@ -9,8 +9,13 @@
 - simple File TRANSfer program
 
 # Installation
-- go get git.moxapp.net/tsuzu/ftrans
-- Or, download from [tags](https://git.mox.si/tsuzu/ftrans/tags/)
+- Download from [releases](../../releases)
+
+# For Developers
+- $ go get -u -d github.com/cs3238-tsuzu/ftrans
+- $ cd $GOPATH/src/github.com/cs3238-tsuzu/ftrans
+- $ make # On windows, make BINARY_NAME=ftrans.exe
+- Make sure that ftrans works by executing `./ftrans`
 
 # Usage
 - On one computer

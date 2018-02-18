@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"git.mox.si/tsuzu/go-easyp2p"
@@ -42,6 +43,8 @@ func main() {
 	if *mode == "server" {
 		runServer()
 	} else {
-		runClient()
+		if err := runClient(); err != nil {
+			log.Fatalf("error: %s", err.Error())
+		}
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -19,11 +20,11 @@ import (
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
-func runClient() {
+func runClient() error {
 	if len(os.Args) < 2 {
 		flag.Usage()
 
-		return
+		return nil
 	}
 	id := os.Args[1]
 	paths := os.Args[2:]
@@ -33,17 +34,25 @@ func runClient() {
 		stuns[i] = strings.TrimPrefix(stuns[i], " ")
 	}
 
-	func() {
+	if err := func() error {
 		m := make(map[string]struct{})
 		for i := range paths {
 			if _, ok := m[filepath.Base(paths[i])]; ok {
-				panic("Duplicated filename")
+				return errors.New("Duplicated filename")
 			}
 			m[filepath.Base(paths[i])] = struct{}{}
 		}
-	}()
+
+		return nil
+	}(); err != nil {
+		return err
+	}
 
 	conn, _, err := websocket.DefaultDialer.Dial(*signaling, nil)
+
+	if err != nil {
+		return err
+	}
 
 	// keep-alive
 	go func() {
@@ -52,17 +61,16 @@ func runClient() {
 			<-ticker.C
 
 			if err := conn.WriteControl(websocket.PingMessage, []byte("keep-alive"), time.Now().Add(10*time.Second)); err != nil {
-				log.Println("error:", err)
+				conn.Close()
+				return
 			}
 		}
 	}()
 
-	if err != nil {
-		panic(err)
-	}
+	defer conn.Close()
 
 	if err := conn.WriteJSON(Handshake{ID: id, Version: ProtocolVersionLatest}); err != nil {
-		panic(err)
+		return err
 	}
 
 	log.Println("Connected to signaling server.")
@@ -74,54 +82,49 @@ func runClient() {
 
 	var resp string
 	if err := conn.ReadJSON(&resp); err != nil {
-		panic(err)
+		return err
 	}
 
 	if resp != "CONNECTED" {
-		panic("error: " + resp)
+		return errors.New("error: " + resp)
 	}
-	log.Println("Connecting started.")
+	log.Println("Connecting to peer started.")
 
 	p2p := easyp2p.NewP2PConn(stuns, easyp2p.DiscoverIPWithSTUN)
 
-	if _, err := p2p.Listen(0); err != nil {
-		conn.Close()
+	defer p2p.Close()
 
-		panic(err)
+	if _, err := p2p.Listen(0); err != nil {
+		return err
 	}
 
 	if ok, err := p2p.DiscoverIP(); err != nil {
 		if !ok {
-			panic(err)
-		} else {
-			log.Println("IP addresses discovery failed: ", err)
-			log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
-			fmt.Print("Continue?(y/n): ")
+			return err
+		}
 
-			var c string
-			fmt.Scan(&c)
+		log.Println("IP addresses discovery failed: ", err)
+		log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
+		fmt.Print("Continue?(y/n): ")
 
-			switch strings.ToLower(c) {
-			case "yes":
-			case "y":
+		var c string
+		fmt.Scan(&c)
 
-			default:
-				conn.Close()
+		switch strings.ToLower(c) {
+		case "yes":
+		case "y":
 
-				return
-			}
+		default:
+			return nil
 		}
 	}
 
 	uuid := uuid.NewV4()
-	if err != nil {
-		panic(err)
-	}
 
 	desc, err := p2p.LocalDescription()
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := conn.WriteJSON(Message{
@@ -129,23 +132,24 @@ func runClient() {
 		LocalDescription: desc,
 		AuthCode:         uuid.String(),
 	}); err != nil {
-		conn.Close()
-
-		panic(err)
+		return err
 	}
 
 	var msg Message
 	if err := conn.ReadJSON(&msg); err != nil {
-		conn.Close()
-
-		panic(err)
+		return err
 	}
 
 	conn.Close()
 
 	if isServer == msg.IsServer {
-		log.Println("error: The mode is duplicating.")
-		return
+		var m string
+		if isServer {
+			m = "receivers"
+		} else {
+			m = "senders"
+		}
+		return errors.New("The mode is duplicating(Both are " + m + ")")
 	}
 
 	log.Println("local description: ", desc)
@@ -159,7 +163,9 @@ func runClient() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
 	if err := p2p.Connect(msg.LocalDescription, isServer, ctx); err != nil {
-		panic(err)
+		cancel()
+
+		return err
 	}
 	cancel()
 
@@ -174,34 +180,27 @@ func runClient() {
 		server, err := smux.Server(p2p, nil)
 
 		if err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		stream, err := server.AcceptStream()
 
 		if err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		var message AuthMessage
 
 		if err := json.NewDecoder(stream).Decode(&message); err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		if err := json.NewEncoder(stream).Encode(msg.AuthCode); err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		if message.AuthCode != uuid.String() {
-			log.Println("Unauthorized")
-
-			p2p.Close()
-			return
+			return errors.New("Unauthorized")
 		}
 
 		stream.Close()
@@ -210,17 +209,15 @@ func runClient() {
 			stream, err := server.AcceptStream()
 
 			if err != nil {
-				p2p.Close()
-				panic(err)
+				return err
 			}
 			var fp *os.File
 			if fp, err = os.Create(name); err != nil {
-				p2p.Close()
-				panic(err)
+				return err
 			}
 
 			if _, err := io.Copy(fp, stream); err != nil {
-				log.Println(err)
+				log.Printf("%s: %s", name, err.Error())
 			}
 
 			fp.Close()
@@ -230,15 +227,13 @@ func runClient() {
 		client, err := smux.Client(p2p, nil)
 
 		if err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		stream, err := client.OpenStream()
 
 		if err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		filenames := make([]string, len(paths))
@@ -250,21 +245,16 @@ func runClient() {
 			Filenames: filenames,
 			AuthCode:  msg.AuthCode,
 		}); err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		var auth string
 		if err := json.NewDecoder(stream).Decode(&auth); err != nil {
-			p2p.Close()
-			panic(err)
+			return err
 		}
 
 		if auth != uuid.String() {
-			log.Println("Unauthorized")
-
-			p2p.Close()
-			return
+			return errors.New("Unauthorized")
 		}
 
 		stream.Close()
@@ -273,18 +263,15 @@ func runClient() {
 			stream, err := client.OpenStream()
 
 			if err != nil {
-				p2p.Close()
-				panic(err)
+				return err
 			}
 			var fp *os.File
 			if fp, err = os.Open(path); err != nil {
-				p2p.Close()
-				panic(err)
+				return err
 			}
 			stat, err := fp.Stat()
 			if err != nil {
-				p2p.Close()
-				panic(err)
+				return err
 			}
 
 			p := pb.New64(stat.Size()).SetUnits(pb.U_BYTES)
@@ -293,7 +280,7 @@ func runClient() {
 			p.Start()
 
 			if _, err := io.Copy(io.MultiWriter(stream, p), fp); err != nil {
-				log.Println("copy", err)
+				log.Printf("%s: %s", path, err.Error())
 			}
 
 			p.Finish()
@@ -302,4 +289,6 @@ func runClient() {
 			stream.Close()
 		}
 	}
+
+	return nil
 }
