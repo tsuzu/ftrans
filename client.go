@@ -95,12 +95,17 @@ func runClient() {
 			panic(err)
 		} else {
 			log.Println("IP addresses discovery failed: ", err)
+			log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
 			fmt.Print("Continue?(y/n): ")
 
 			var c string
 			fmt.Scan(&c)
 
-			if c != "Y" && c != "y" {
+			switch strings.ToLower(c) {
+			case "yes":
+			case "y":
+
+			default:
 				conn.Close()
 
 				return
