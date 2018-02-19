@@ -103,9 +103,10 @@ func runClient() error {
 			return err
 		}
 
+	FOR:
 		for {
-			log.Println("IP addresses discovery failed: ", err)
-			log.Println("Available IP addresses: ", strings.Join(p2p.LocalAddresses, ", "))
+			log.Println("IP addresses discovery failed:", err)
+			log.Println("Available IP addresses:", strings.Join(p2p.LocalAddresses, ", "))
 			fmt.Print("Continue?(y/n): ")
 
 			var c string
@@ -113,15 +114,18 @@ func runClient() error {
 
 			switch strings.ToLower(c) {
 			case "yes", "y":
-				break
+				break FOR
 			case "no", "n":
 				return nil
 			}
 		}
 	}
 
-	uuid := uuid.NewV4()
+	uuid, err := uuid.NewV4()
 
+	if err != nil {
+		return err
+	}
 	desc, err := p2p.LocalDescription()
 
 	if err != nil {
@@ -185,6 +189,8 @@ func runClient() error {
 			return err
 		}
 
+		defer server.Close()
+
 		var message AuthMessage
 
 		err = func() error {
@@ -234,8 +240,9 @@ func runClient() error {
 				if fp, err := os.Open(name); err == nil {
 					fp.Close()
 
+				FOR:
 					for {
-						log.Println("File already exists: ", name)
+						log.Println("File already exists:", name)
 						fmt.Print("Skip this?(y/n): ")
 
 						var c string
@@ -245,7 +252,7 @@ func runClient() error {
 						case "yes", "y":
 							return nil
 						case "no", "n":
-							break
+							break FOR
 						}
 					}
 				}
@@ -291,6 +298,8 @@ func runClient() error {
 		if err != nil {
 			return err
 		}
+
+		defer client.Close()
 
 		fileNames := make([]string, len(paths))
 		fileSizes := make([]int64, len(paths))
