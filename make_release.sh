@@ -25,15 +25,12 @@ cat << EOF
 All the following binaries are ones for x86_64.
 
 ## Linux
-[Download binary]()
 $FTRANS
 
 ## Mac
-[Download binary]()
 $FTRANS_MAC
 
 ## Windows
-[Download binary]()
 $FTRANS_WIN
 
 EOF
