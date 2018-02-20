@@ -5,7 +5,7 @@ import "github.com/gorilla/websocket"
 const (
 	ProtocolVersion1_0 = "1.0"
 	ProtocolVersion1_1 = "1.1" // Update following go-easyp2p
-	ProtocolVersion1_2 = "1.2" // Update following go-easyp2p
+	ProtocolVersion1_2 = "1.2"
 
 	ProtocolVersionLatest = ProtocolVersion1_2
 )
