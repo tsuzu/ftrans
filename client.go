@@ -24,6 +24,7 @@ import (
 func runClient(isReceiver bool, pass string, paths, stuns []string, signaling string) error {
 	err := func() error {
 		if !isReceiver && len(paths) == 0 {
+			log.Println("To look at help of \"ftrans send\", execute \"ftrans send -h\"")
 			return errors.New("Insufficient paths")
 		}
 
@@ -156,8 +157,8 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 		return errors.New("The mode is duplicating(Both are " + m + ")")
 	}
 
-	log.Println("local description: ", desc)
-	log.Println("remote description: ", msg.LocalDescription)
+	log.Println("local description:", desc)
+	log.Println("remote description:", msg.LocalDescription)
 	if isReceiver {
 		log.Println("mode: reciever")
 	} else {
@@ -173,7 +174,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 	}
 	cancel()
 
-	log.Println("Connected: ", p2p.UTPConn.RemoteAddr())
+	log.Println("Connected:", p2p.UTPConn.RemoteAddr())
 
 	type AuthMessage struct {
 		FileNames []string

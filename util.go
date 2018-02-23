@@ -1,18 +1,29 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"os"
 	"strings"
 )
 
 func askYesNo(showQuestion func(), defaultValue *bool) bool {
 	for {
-		fmt.Print("(y/n): ")
+		if defaultValue != nil {
+			if *defaultValue {
+				fmt.Print("(Y/n): ")
+			} else {
+				fmt.Print("(y/N): ")
+			}
+		} else {
+			fmt.Print("(y/n): ")
+		}
 
-		var c string
-		fmt.Scan(&c)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		c := scanner.Text()
 
 		switch strings.ToLower(c) {
 		case "yes", "y":
