@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gorilla/websocket"
+import (
+	"time"
+
+	"github.com/gorilla/websocket"
+)
 
 const (
 	ProtocolVersion1_0 = "1.0"
@@ -10,12 +14,28 @@ const (
 	ProtocolVersionLatest = ProtocolVersion1_2
 )
 
+var ProtocolVersionArray = []string{
+	ProtocolVersion1_0,
+	ProtocolVersion1_1,
+	ProtocolVersion1_2,
+}
+
 var (
 	binaryVersion  = "unknown"
 	binaryRevision = "unknown"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+var dialer = websocket.Dialer{
+	HandshakeTimeout: 5 * time.Second,
 }
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:   1024,
+	WriteBufferSize:  1024,
+	HandshakeTimeout: 5 * time.Second,
+}
+
+const ProtocolVersionHeaderKey = "X-Ftrans-Protocol-Version"
+
+const defaultSignalingServer = "wss://ftrans.cs3238.com/ws"
+const defaultSTUNServer = "stun.l.google.com:19302"

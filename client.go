@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,21 +21,12 @@ import (
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
-func runClient() error {
-	if len(os.Args) < 2 {
-		flag.Usage()
+func runClient(isReceiver bool, pass string, paths, stuns []string, signaling string) error {
+	err := func() error {
+		if !isReceiver && len(paths) == 0 {
+			return errors.New("Insufficient paths")
+		}
 
-		return nil
-	}
-	id := os.Args[1]
-	paths := os.Args[2:]
-
-	stuns := strings.Split(*stun, ",")
-	for i := range stuns {
-		stuns[i] = strings.TrimPrefix(stuns[i], " ")
-	}
-
-	if err := func() error {
 		m := make(map[string]struct{})
 		for i := range paths {
 			if _, ok := m[filepath.Base(paths[i])]; ok {
@@ -44,13 +36,32 @@ func runClient() error {
 		}
 
 		return nil
-	}(); err != nil {
+	}()
+
+	if err != nil {
 		return err
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(*signaling, nil)
+	if len(pass) == 0 {
+		pass = RandomSecurePassword()
+
+		log.Println("Your password:", pass)
+	}
+
+	header := http.Header(make(map[string][]string))
+	header.Add(ProtocolVersionHeaderKey, ProtocolVersionLatest)
+
+	conn, r, err := dialer.Dial(signaling, header)
 
 	if err != nil {
+		if r != nil && r.Body != nil {
+			b, err := ioutil.ReadAll(r.Body)
+
+			r.Body.Close()
+			if err == nil && len(b) != 0 {
+				err = fmt.Errorf("%s: %s", err.Error(), string(b))
+			}
+		}
 		return err
 	}
 
@@ -69,16 +80,11 @@ func runClient() error {
 
 	defer conn.Close()
 
-	if err := conn.WriteJSON(Handshake{ID: id, Version: ProtocolVersionLatest}); err != nil {
+	if err := conn.WriteJSON(Handshake1_2{Pass: pass, Version: ProtocolVersionLatest}); err != nil {
 		return err
 	}
 
 	log.Println("Connected to signaling server.")
-
-	isServer := false
-	if len(paths) == 0 {
-		isServer = true
-	}
 
 	var resp string
 	if err := conn.ReadJSON(&resp); err != nil {
@@ -103,21 +109,14 @@ func runClient() error {
 			return err
 		}
 
-	FOR:
-		for {
+		v := askYesNo(func() {
 			log.Println("IP addresses discovery failed:", err)
 			log.Println("Available IP addresses:", strings.Join(p2p.LocalAddresses, ", "))
-			fmt.Print("Continue?(y/n): ")
+			fmt.Print("Continue?")
+		}, nil)
 
-			var c string
-			fmt.Scan(&c)
-
-			switch strings.ToLower(c) {
-			case "yes", "y":
-				break FOR
-			case "no", "n":
-				return nil
-			}
+		if !v {
+			return nil
 		}
 	}
 
@@ -132,24 +131,24 @@ func runClient() error {
 		return err
 	}
 
-	if err := conn.WriteJSON(Message{
-		IsServer:         isServer,
+	if err := conn.WriteJSON(Message1_2{
+		IsReceiver:       isReceiver,
 		LocalDescription: desc,
 		AuthCode:         uuid.String(),
 	}); err != nil {
 		return err
 	}
 
-	var msg Message
+	var msg Message1_2
 	if err := conn.ReadJSON(&msg); err != nil {
 		return err
 	}
 
 	conn.Close()
 
-	if isServer == msg.IsServer {
+	if isReceiver == msg.IsReceiver {
 		var m string
-		if isServer {
+		if isReceiver {
 			m = "receivers"
 		} else {
 			m = "senders"
@@ -159,7 +158,7 @@ func runClient() error {
 
 	log.Println("local description: ", desc)
 	log.Println("remote description: ", msg.LocalDescription)
-	if isServer {
+	if isReceiver {
 		log.Println("mode: reciever")
 	} else {
 		log.Println("mode: sender")
@@ -167,7 +166,7 @@ func runClient() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
-	if err := p2p.Connect(msg.LocalDescription, isServer, ctx); err != nil {
+	if err := p2p.Connect(msg.LocalDescription, isReceiver, ctx); err != nil {
 		cancel()
 
 		return err
@@ -182,7 +181,7 @@ func runClient() error {
 		AuthCode  string
 	}
 
-	if isServer {
+	if isReceiver {
 		server, err := smux.Server(p2p, nil)
 
 		if err != nil {
@@ -240,20 +239,13 @@ func runClient() error {
 				if fp, err := os.Open(name); err == nil {
 					fp.Close()
 
-				FOR:
-					for {
+					v := askYesNo(func() {
 						log.Println("File already exists:", name)
-						fmt.Print("Skip this?(y/n): ")
+						fmt.Print("Skip this?")
+					}, nil)
 
-						var c string
-						fmt.Scan(&c)
-
-						switch strings.ToLower(c) {
-						case "yes", "y":
-							return nil
-						case "no", "n":
-							break FOR
-						}
+					if v {
+						return nil
 					}
 				}
 

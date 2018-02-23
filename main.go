@@ -6,46 +6,120 @@ import (
 	"log"
 	"os"
 
+	"github.com/urfave/cli"
+
 	"git.mox.si/tsuzu/go-easyp2p"
 )
 
 var (
-	mode      = flag.String("mode", "client", "Server(signaling server) or client(sender or receiver)")
-	stun      = flag.String("stun", "stun.l.google.com:19302", "STUN server addresses(split with ',')")
-	signaling = flag.String("sig", "wss://ftrans.cs3238.com/ws", "Signaling server address")
+	mode = flag.String("mode", "client", "Server(signaling server) or client(sender or receiver)")
+	//stun      = flag.String("stun", , "STUN server addresses(split with ',')")
+	//signaling = flag.String("sig",, "Signaling server address")
 	// saveDir   = flag.String("save", ".", "Directory in which files are saved(for receivers)") TODO: Support in the future
 	version = flag.Bool("v", false, "Show version")
 )
 
+const versionFormat = `ftrans version: %s(%s)
+
+[Details]
+ftrans protocol version: %s
+go-easyp2p version: %s
+`
+
+func stringSlice(s []string) *cli.StringSlice {
+	a := cli.StringSlice(s)
+
+	return &a
+}
+
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Usage of ftrans:")
-		fmt.Fprintln(os.Stderr, "  ftrans [options] password [file paths...]")
-		fmt.Fprintln(os.Stderr, "  If no path is passed, this runs as a receiver.")
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "  To launch a signaling server: ftrans --mode server")
-		fmt.Fprintln(os.Stderr)
-
-		flag.PrintDefaults()
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Printf(
+			versionFormat,
+			binaryVersion,
+			binaryRevision,
+			ProtocolVersionLatest,
+			easyp2p.P2PVersionString(easyp2p.P2PVersionLatest),
+		)
 	}
 
-	flag.Parse()
+	app := cli.NewApp()
+	app.Usage = "Transfer files from one peer to the other peer over encrypted P2P connection"
+	app.Version = binaryVersion
+	app.UsageText = "ftrans [global options] command [command options] [arguments...]"
+	app.Name = "ftrans"
 
-	if *version {
-		fmt.Fprintln(os.Stderr, "ftrans version:", binaryVersion, "("+binaryRevision+")")
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "[Details]")
-		fmt.Fprintln(os.Stderr, "ftrans protocol version:", ProtocolVersionLatest)
-		fmt.Fprintln(os.Stderr, "go-easyp2p version:", easyp2p.P2PVersionString(easyp2p.P2PVersionLatest))
-
-		return
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:      "send",
+			Usage:     "Send files to peer",
+			ArgsUsage: "[paths to files you want to send...]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "pass, p",
+					Usage: "Password to match the peer(if not set, 6-character password is automatically generated)",
+				},
+				cli.StringSliceFlag{
+					Name:   "stun",
+					Usage:  "STUN server addresses(split with ,)",
+					EnvVar: "FTRANS_STUN",
+					Value:  stringSlice([]string{defaultSTUNServer}),
+				},
+				cli.StringFlag{
+					Name:   "signaling, sig",
+					Usage:  "Signaling server address",
+					EnvVar: "FTRANS_SIGNALING",
+					Value:  defaultSignalingServer,
+				},
+			},
+			Action: func(ctx *cli.Context) error {
+				return runClient(false, ctx.String("pass"), []string(ctx.Args()), ctx.StringSlice("stun"), ctx.String("signaling"))
+			},
+		},
+		cli.Command{
+			Name:    "receive",
+			Aliases: []string{"rec"},
+			Usage:   "Receive files from peer",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "pass, p",
+					Usage: "Password to match the peer",
+				},
+				cli.StringSliceFlag{
+					Name:   "stun",
+					Usage:  "STUN server addresses(split with ,)",
+					EnvVar: "FTRANS_STUN",
+					Value:  stringSlice([]string{defaultSTUNServer}),
+				},
+				cli.StringFlag{
+					Name:   "signaling",
+					Usage:  "Signaling server address",
+					EnvVar: "FTRANS_SIGNALING",
+					Value:  defaultSignalingServer,
+				},
+			},
+			Action: func(ctx *cli.Context) error {
+				return runClient(true, ctx.String("pass"), nil, ctx.StringSlice("stun"), ctx.String("signaling"))
+			},
+		},
+		cli.Command{
+			Name:  "signaling",
+			Usage: "Launch a signaling server",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "addr",
+					Usage:  "Listen address",
+					EnvVar: "FTRANS_LISTEN",
+					Value:  ":80",
+				},
+			},
+			Action: func(ctx *cli.Context) error {
+				return runServer(ctx.String("addr"))
+			},
+		},
 	}
 
-	if *mode == "server" {
-		runServer()
-	} else {
-		if err := runClient(); err != nil {
-			log.Fatalf("error: %s", err.Error())
-		}
+	if err := app.Run(os.Args); err != nil {
+		log.Printf("error: %s", err.Error())
 	}
 }

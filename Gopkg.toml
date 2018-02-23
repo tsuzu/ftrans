@@ -34,12 +34,16 @@
   version = "1.6.1"
 
 [[constraint]]
+  name = "github.com/urfave/cli"
+  version = "v1.20.0"
+
+[[constraint]]
   name = "github.com/gorilla/websocket"
   version = "1.2.0"
 
 [[constraint]]
   name = "github.com/satori/go.uuid"
-  version = "1.2.0"
+  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[constraint]]
   name = "github.com/xtaci/smux"
