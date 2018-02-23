@@ -21,14 +21,17 @@
 - On one computer
 
 ```
-$ ftrans password path/to/file/you/want/to/send
+$ ftrans send .vimrc ~/.ssh/id_rsa.pub portrait.jpg
+20XX/XX/XX XX:XX:XX Your password: password
 ```
 
 - On the other computer
 
 ```
-$ ftrans password
+$ ftrans rec -p password
 ```
+
+- You can set password for yourself using "-p" option
 
 - Only these steps enable you to send and recieve files.
 - If you want to use other options, run ftrans -h
