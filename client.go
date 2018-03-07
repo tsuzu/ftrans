@@ -56,10 +56,10 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 
 	if err != nil {
 		if r != nil && r.Body != nil {
-			b, err := ioutil.ReadAll(r.Body)
+			b, e := ioutil.ReadAll(r.Body)
 
 			r.Body.Close()
-			if err == nil && len(b) != 0 {
+			if e == nil && len(b) != 0 {
 				err = fmt.Errorf("%s: %s", err.Error(), string(b))
 			}
 		}

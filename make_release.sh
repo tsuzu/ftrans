@@ -19,8 +19,10 @@ FTRANS=$(openssl md5 ftrans)
 FTRANS_MAC=$(openssl md5 ftrans_mac)
 FTRANS_WIN=$(openssl md5 ftrans.exe)
 
+VERSION=$(git describe --tags --abbrev=0)
+
 cat << EOF
-# Version $1
+# Version $VERSION
 
 All the following binaries are ones for x86_64.
 

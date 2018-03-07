@@ -10,6 +10,7 @@ func initServer() http.Handler {
 	// Initialize handlers
 	init1_1()
 	init1_2()
+	init2_0()
 
 	router := mux.NewRouter()
 
@@ -30,6 +31,8 @@ func initServer() http.Handler {
 		switch req.Header.Get(ProtocolVersionHeaderKey) {
 		case ProtocolVersion1_2:
 			serverHandler1_2(rw, req)
+		case ProtocolVersion2_0:
+			serverHandler2_0(rw, req)
 		default:
 			serverHandler1_1(rw, req)
 		}
