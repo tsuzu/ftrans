@@ -28,7 +28,7 @@ func main() {
 			versionFormat,
 			binaryVersion,
 			binaryRevision,
-			ProtocolVersionLatest,
+			protocolVersionLatest,
 			easyp2p.P2PVersionString(easyp2p.P2PVersionLatest),
 		)
 	}

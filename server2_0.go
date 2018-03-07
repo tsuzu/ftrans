@@ -85,7 +85,7 @@ func serverHandler2_0(rw http.ResponseWriter, req *http.Request) {
 	mut := mut2_0
 	conns := conns2_0
 
-	log.Printf("connected(addr: %s, version: %s)", req.RemoteAddr, ProtocolVersion2_0)
+	log.Printf("connected(addr: %s, version: %s)", req.RemoteAddr, protocolVersion2_0)
 	defer log.Println("closed", req.RemoteAddr)
 	conn, err := upgrader.Upgrade(rw, req, nil)
 
@@ -106,7 +106,7 @@ func serverHandler2_0(rw http.ResponseWriter, req *http.Request) {
 	}
 	conn.SetReadDeadline(time.Time{})
 
-	if hs.Version != ProtocolVersion2_0 {
+	if hs.Version != protocolVersion2_0 {
 		conn.SetWriteDeadline(time.Now().Add(3 * time.Second))
 		conn.WriteJSON("Incorrect Version")
 		conn.Close()

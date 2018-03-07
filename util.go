@@ -42,7 +42,7 @@ func askYesNo(showQuestion func(), defaultValue *bool) bool {
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func RandomSecurePassword() string {
+func randomSecurePassword() string {
 	b := make([]byte, 6)
 	size := big.NewInt(int64(len(letterBytes)))
 	for i := range b {

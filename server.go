@@ -28,10 +28,10 @@ func initServer() http.Handler {
 	}*/
 
 	router.HandleFunc("/ws", func(rw http.ResponseWriter, req *http.Request) {
-		switch req.Header.Get(ProtocolVersionHeaderKey) {
-		case ProtocolVersion1_2:
+		switch req.Header.Get(protocolVersionHeaderKey) {
+		case protocolVersion1_2:
 			serverHandler1_2(rw, req)
-		case ProtocolVersion2_0:
+		case protocolVersion2_0:
 			serverHandler2_0(rw, req)
 		default:
 			serverHandler1_1(rw, req)

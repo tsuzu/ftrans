@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	ProtocolVersion1_0 = "1.0"
-	ProtocolVersion1_1 = "1.1" // Update following go-easyp2p
-	ProtocolVersion1_2 = "1.2"
-	ProtocolVersion2_0 = "2.0"
+	protocolVersion1_0 = "1.0"
+	protocolVersion1_1 = "1.1" // Update following go-easyp2p
+	protocolVersion1_2 = "1.2"
+	protocolVersion2_0 = "2.0"
 
-	ProtocolVersionLatest = ProtocolVersion2_0
+	protocolVersionLatest = protocolVersion2_0
 )
 
-var ProtocolVersionArray = []string{
-	ProtocolVersion1_0,
-	ProtocolVersion1_1,
-	ProtocolVersion1_2,
+var protocolVersionArray = []string{
+	protocolVersion1_0,
+	protocolVersion1_1,
+	protocolVersion1_2,
 }
 
 var (
@@ -36,7 +36,7 @@ var upgrader = websocket.Upgrader{
 	HandshakeTimeout: 5 * time.Second,
 }
 
-const ProtocolVersionHeaderKey = "X-Ftrans-Protocol-Version"
+const protocolVersionHeaderKey = "X-Ftrans-Protocol-Version"
 
 const defaultSignalingServer = "wss://ftrans.cs3238.com/ws"
 const defaultSTUNServer = "stun.l.google.com:19302"

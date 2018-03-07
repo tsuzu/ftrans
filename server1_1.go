@@ -104,7 +104,7 @@ func serverHandler1_1(rw http.ResponseWriter, req *http.Request) {
 	}
 	conn.SetReadDeadline(time.Time{})
 
-	if hs.Version != ProtocolVersion1_1 {
+	if hs.Version != protocolVersion1_1 {
 		conn.SetWriteDeadline(time.Now().Add(3 * time.Second))
 		conn.WriteJSON("Incorrect Version")
 		conn.Close()

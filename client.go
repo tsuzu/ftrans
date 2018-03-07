@@ -44,13 +44,13 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 	}
 
 	if len(pass) == 0 {
-		pass = RandomSecurePassword()
+		pass = randomSecurePassword()
 
 		log.Println("Your password:", pass)
 	}
 
 	header := http.Header(make(map[string][]string))
-	header.Add(ProtocolVersionHeaderKey, ProtocolVersionLatest)
+	header.Add(protocolVersionHeaderKey, protocolVersionLatest)
 
 	conn, r, err := dialer.Dial(signaling, header)
 
@@ -81,7 +81,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 
 	defer conn.Close()
 
-	if err := conn.WriteJSON(Handshake1_2{Pass: pass, Version: ProtocolVersionLatest}); err != nil {
+	if err := conn.WriteJSON(Handshake1_2{Pass: pass, Version: protocolVersionLatest}); err != nil {
 		return err
 	}
 
@@ -160,7 +160,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 	log.Println("local description:", desc)
 	log.Println("remote description:", msg.LocalDescription)
 	if isReceiver {
-		log.Println("mode: reciever")
+		log.Println("mode: receiver")
 	} else {
 		log.Println("mode: sender")
 	}
