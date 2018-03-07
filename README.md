@@ -6,7 +6,7 @@
 -->
 
 # ftrans
-[![Travis](https://img.shields.io/travis/cs3238-tsuzu/ftrans.svg?style=flat-square)](https://github.com/cs3238-tsuzu/ftrans)
+[![Travis](https://img.shields.io/travis/cs3238-tsuzu/ftrans.svg?style=flat-square)](https://travis-ci.org/cs3238-tsuzu/ftrans)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cs3238-tsuzu/ftrans?style=flat-square)](https://goreportcard.com/report/github.com/cs3238-tsuzu/ftrans)
 
 - simple File TRANSfer program
