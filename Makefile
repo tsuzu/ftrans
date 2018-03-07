@@ -3,7 +3,7 @@ BINARY_VERSION = $(shell git describe --tags --abbrev=0)
 BINARY_REVISION = $(shell git rev-parse --short HEAD)
 
 SRCS = $(wildcard ./*.go)
-DEP_FILES = Gopkg.toml Gopkg.lock vendor/
+DEP_FILES = Gopkg.toml Gopkg.lock
 
 .PHONY: all build_only build dep clean
 all: build
