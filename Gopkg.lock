@@ -3,12 +3,6 @@
 
 [[projects]]
   branch = "master"
-  name = "git.mox.si/tsuzu/go-easyp2p"
-  packages = ["."]
-  revision = "11302b91d4990693d930563b16fb6a2a617e56d7"
-
-[[projects]]
-  branch = "master"
   name = "github.com/anacrolix/missinggo"
   packages = [
     ".",
@@ -103,6 +97,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7bacb7dc152fc02dd18584b5816ff1d10489776adade69ee1d70606d1247b64a"
+  inputs-digest = "6849f543f3f8ea94ba5f0a3fa5af22e5aeb2040233a8a642a0d3a9875830c5f4"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -41,4 +41,4 @@ $ ftrans recv -p password
 - Copyright (c) 2018 Tsuzu
 
 # Version
-- 1.0
+- 1.1
