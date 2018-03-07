@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	easyp2p "git.mox.si/tsuzu/go-easyp2p"
+	easyp2p "github.com/cs3238-tsuzu/go-easyp2p"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 	"github.com/xtaci/smux"

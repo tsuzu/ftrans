@@ -1,22 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
 
+	easyp2p "github.com/cs3238-tsuzu/go-easyp2p"
 	"github.com/urfave/cli"
-
-	"git.mox.si/tsuzu/go-easyp2p"
-)
-
-var (
-	mode = flag.String("mode", "client", "Server(signaling server) or client(sender or receiver)")
-	//stun      = flag.String("stun", , "STUN server addresses(split with ',')")
-	//signaling = flag.String("sig",, "Signaling server address")
-	// saveDir   = flag.String("save", ".", "Directory in which files are saved(for receivers)") TODO: Support in the future
-	version = flag.Bool("v", false, "Show version")
 )
 
 const versionFormat = `ftrans version: %s(%s)
@@ -78,7 +68,7 @@ func main() {
 		},
 		cli.Command{
 			Name:    "receive",
-			Aliases: []string{"rec"},
+			Aliases: []string{"recv"},
 			Usage:   "Receive files from peer",
 			Flags: []cli.Flag{
 				cli.StringFlag{

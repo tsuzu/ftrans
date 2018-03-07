@@ -27,7 +27,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "git.mox.si/tsuzu/go-easyp2p"
+  name = "github.com/cs3238-tsuzu/go-easyp2p"
 
 [[constraint]]
   name = "github.com/gorilla/mux"

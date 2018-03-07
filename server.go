@@ -13,12 +13,12 @@ func initServer() http.Handler {
 
 	router := mux.NewRouter()
 
-	redirect := func(rw http.ResponseWriter, version string) {
-		rw.Header().Add("Location", "./ws/"+version)
+	redirect := func(rw http.ResponseWriter, address string) {
+		rw.Header().Add("Location", address)
 		rw.WriteHeader(http.StatusFound)
 	}
 	router.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		redirect(rw, "https://git.mox.si/tsuzu/ftrans")
+		redirect(rw, "https://github.comi/cs3238-tsuzu/ftrans")
 	})
 
 	/*isolate := func(rw http.ResponseWriter) {

@@ -30,6 +30,12 @@
   revision = "9e0e1d1d0572f5a09a669d4ea0372d8e8078dcc9"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/cs3238-tsuzu/go-easyp2p"
+  packages = ["."]
+  revision = "11302b91d4990693d930563b16fb6a2a617e56d7"
+
+[[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
   revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
@@ -86,7 +92,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "c1138c84af3a9927aee1a1b8b7ce06c9b7ea52bc"
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
   name = "gopkg.in/cheggaaa/pb.v1"
@@ -97,6 +103,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8de73b3e772a5b170fd18b8a0d3e688082fdd0fe4400744ffe36a4462358138"
+  inputs-digest = "7bacb7dc152fc02dd18584b5816ff1d10489776adade69ee1d70606d1247b64a"
   solver-name = "gps-cdcl"
   solver-version = 1

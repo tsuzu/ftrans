@@ -28,7 +28,7 @@ $ ftrans send .vimrc ~/.ssh/id_rsa.pub portrait.jpg
 - On the other computer
 
 ```
-$ ftrans rec -p password
+$ ftrans recv -p password
 ```
 
 - You can set password for yourself using "-p" option
