@@ -11,6 +11,8 @@ import (
 
 func askYesNo(showQuestion func(), defaultValue *bool) bool {
 	for {
+		showQuestion()
+
 		if defaultValue != nil {
 			if *defaultValue {
 				fmt.Print("(Y/n): ")

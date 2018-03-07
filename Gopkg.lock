@@ -3,31 +3,33 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/anacrolix/missinggo"
+  name = "github.com/aead/chacha20"
   packages = [
     ".",
-    "inproc",
-    "pproffd"
+    "chacha"
   ]
-  revision = "f32f2dc367fb4fc0167b83145459f567abd59c49"
+  revision = "c8d29375923a8e1d2a0f0dc0fc1d8a0aba5b97ba"
 
 [[projects]]
   branch = "master"
-  name = "github.com/anacrolix/sync"
-  packages = ["."]
-  revision = "eee974e4f8c1e1f38d16e32713dd408d6b02ca55"
+  name = "github.com/bifurcation/mint"
+  packages = [
+    ".",
+    "syntax"
+  ]
+  revision = "198357931e6129b810c9c77c12e0dd754846170c"
 
 [[projects]]
   branch = "master"
-  name = "github.com/anacrolix/utp"
-  packages = ["."]
-  revision = "9e0e1d1d0572f5a09a669d4ea0372d8e8078dcc9"
+  name = "github.com/cheekybits/genny"
+  packages = ["generic"]
+  revision = "9127e812e1e9e501ce899a18121d316ecb52e4ba"
 
 [[projects]]
   branch = "master"
   name = "github.com/cs3238-tsuzu/go-easyp2p"
   packages = ["."]
-  revision = "11302b91d4990693d930563b16fb6a2a617e56d7"
+  revision = "4b7e501c3c4756548f707cff6be87c7205685653"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -52,6 +54,50 @@
   packages = ["."]
   revision = "dca36b59733d9246b038f2546647f031d11fecf6"
   version = "v1.6.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/golang-lru"
+  packages = [
+    ".",
+    "simplelru"
+  ]
+  revision = "0fb14efe8c47ae851c0034ed7a448854d3d34cf3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/aes12"
+  packages = ["."]
+  revision = "cd47fb39b79f867c6e4e5cd39cf7abd799f71670"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/fnv128a"
+  packages = ["."]
+  revision = "393af48d391698c6ae4219566bfbdfef67269997"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/quic-go"
+  packages = [
+    ".",
+    "internal/ackhandler",
+    "internal/congestion",
+    "internal/crypto",
+    "internal/flowcontrol",
+    "internal/handshake",
+    "internal/protocol",
+    "internal/utils",
+    "internal/wire",
+    "qerr"
+  ]
+  revision = "c37433abce2e694d7ecca80953ce2a003d83e498"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/quic-go-certificates"
+  packages = ["."]
+  revision = "d2f86524cced5186554df90d92529757d22c1cb6"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -79,14 +125,23 @@
 [[projects]]
   name = "github.com/xtaci/smux"
   packages = ["."]
-  revision = "ebec7ef2574b42a7088cd7751176483e0a27d458"
-  version = "v1.0.6"
+  revision = "e28719eede1ac5714cf0b06ba2f403125864ebe0"
+  version = "v1.0.7"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = [
+    "curve25519",
+    "hkdf"
+  ]
+  revision = "85f98707c97e11569271e4d9b3d397e079c4f4d0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
+  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
   name = "gopkg.in/cheggaaa/pb.v1"

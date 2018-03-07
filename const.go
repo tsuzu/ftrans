@@ -10,8 +10,9 @@ const (
 	ProtocolVersion1_0 = "1.0"
 	ProtocolVersion1_1 = "1.1" // Update following go-easyp2p
 	ProtocolVersion1_2 = "1.2"
+	ProtocolVersion2_0 = "2.0"
 
-	ProtocolVersionLatest = ProtocolVersion1_2
+	ProtocolVersionLatest = ProtocolVersion2_0
 )
 
 var ProtocolVersionArray = []string{

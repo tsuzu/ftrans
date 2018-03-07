@@ -97,7 +97,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 	}
 	log.Println("Connecting to peer started.")
 
-	p2p := easyp2p.NewP2PConn(stuns, easyp2p.DiscoverIPWithSTUN)
+	p2p := easyp2p.NewP2PConn(stuns)
 
 	defer p2p.Close()
 
@@ -167,14 +167,14 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
-	if err := p2p.Connect(msg.LocalDescription, isReceiver, ctx); err != nil {
+	if err := p2p.Connect(ctx, msg.LocalDescription); err != nil {
 		cancel()
 
 		return err
 	}
 	cancel()
 
-	log.Println("Connected:", p2p.UTPConn.RemoteAddr())
+	log.Println("Connected:", p2p.ReliableConn.RemoteAddr())
 
 	type AuthMessage struct {
 		FileNames []string
