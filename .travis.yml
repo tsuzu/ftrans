@@ -1,6 +1,11 @@
-  language: go
-  go:
-    - "1.10"
+language: go
+go:
+  - "1.10"
 
-  install:
-    - ./make_release.sh
+env:
+  - INSTALL_DIRECTORY=./
+before_install:
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+install:
+  - export PATH=$PATH:`pwd`
+  - ./make_release.sh
