@@ -11,7 +11,7 @@
 
 # Description
 - simple File TRANSfer program
-- Quick and fast transferring with P2P
+- Quick and fast transferring with P2P(P2P library is [go-easyp2p](https://github.com/cs3238-tsuzu/go-easyp2p))
 - Single & statically linked binary
 - Pure Go
 - Simple and easy installation
