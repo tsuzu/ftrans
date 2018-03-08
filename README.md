@@ -11,7 +11,7 @@
 
 # Description
 - simple File TRANSfer program
-- Quick and fast transffering with P2P
+- Quick and fast transferring with P2P
 - Single & statically linked binary
 - Pure Go
 - Simple and easy installation
