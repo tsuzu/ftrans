@@ -9,7 +9,13 @@
 [![Travis](https://img.shields.io/travis/cs3238-tsuzu/ftrans.svg?style=flat-square)](https://travis-ci.org/cs3238-tsuzu/ftrans)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cs3238-tsuzu/ftrans?style=flat-square)](https://goreportcard.com/report/github.com/cs3238-tsuzu/ftrans)
 
+# Description
 - simple File TRANSfer program
+- Quick and fast transffering with P2P
+- Single & statically linked binary
+- Pure Go
+- Simple and easy installation
+- Maybe useful to transfer files from host machines to VM, from PC to VPS, and so on.
 
 # Installation
 - Download from [releases](../../releases)
@@ -21,6 +27,7 @@
 - Make sure that ftrans works by executing `./ftrans`
 
 # Usage
+- In Japanese, read [the wiki](https://github.com/cs3238-tsuzu/ftrans/wiki)
 - On one computer
 
 ```
