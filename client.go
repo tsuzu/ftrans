@@ -81,7 +81,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 
 	defer conn.Close()
 
-	if err := conn.WriteJSON(Handshake1_2{Pass: pass, Version: protocolVersionLatest}); err != nil {
+	if err := conn.WriteJSON(Handshake2_0{Pass: pass, Version: protocolVersionLatest}); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 		return err
 	}
 
-	if err := conn.WriteJSON(Message1_2{
+	if err := conn.WriteJSON(Message2_0{
 		IsReceiver:       isReceiver,
 		LocalDescription: desc,
 		AuthCode:         uuid.String(),
@@ -140,7 +140,7 @@ func runClient(isReceiver bool, pass string, paths, stuns []string, signaling st
 		return err
 	}
 
-	var msg Message1_2
+	var msg Message2_0
 	if err := conn.ReadJSON(&msg); err != nil {
 		return err
 	}
